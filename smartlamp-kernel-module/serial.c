@@ -1,8 +1,11 @@
 #include <linux/module.h>
 #include <linux/usb.h>
 #include <linux/slab.h>
-#include <string.h>
-#include <stdlib.h>
+#include <linux/string.h>
+// #include <linux/stdio.h>
+// #include <linux/stdlib.h>
+#include <linux/slab.h> // Para kmalloc e kfree
+
 
 MODULE_AUTHOR("DevTITANS <devtitans@icomp.ufam.edu.br>");
 MODULE_DESCRIPTION("Driver de acesso ao SmartLamp (ESP32 com Chip Serial CP2102");
@@ -69,10 +72,16 @@ static void usb_disconnect(struct usb_interface *interface) {
 
 static int usb_read_serial() {
     int ret, actual_size;
-    int retries = 10;                       // Tenta algumas vezes receber uma resposta da USB. Depois desiste.
+    int retries = 10;
+    // char message[];           // Tenta algumas vezes receber uma resposta da USB. Depois desiste.
+    // // char *message = malloc(1);
+    // message[0] = '\0';
+    char *message = NULL; // Inicializa a string como nula
+    int message_size = 0; //
 
     // Espera pela resposta correta do dispositivo (desiste depois de várias tentativas)
     while (retries > 0) {
+
         // Lê os dados da porta serial e armazena em usb_in_buffer
         // usb_in_buffer - contem a resposta em string do dispositivo
         // actual_size - contem o tamanho da resposta em bytes
@@ -82,21 +91,50 @@ static int usb_read_serial() {
             continue;
         }
 
-        //caso tenha recebido a mensagem 'RES_LDR X' via serial acesse o buffer 'usb_in_buffer' e retorne apenas o valor da resposta X
-        //retorne o valor de X em inteiro
+        printk(KERN_ERR "USB IN BUFFER: %s\n", usb_in_buffer);
+        printk(KERN_ERR "MESSAGE: %s\n", message);
 
-        // Procura por 'RES_LDR ' no início da resposta
-        char *start = strstr(usb_in_buffer, "RES_LDR "); // retorna a primeira ocorrência da "RES_LDR " na string usb_in_buffer
-        if (!start) {
-            printk(KERN_ERR "SmartLamp: Mensagem incompleta ou inválida.\n");
-            continue;
+        // Aloca memória para a nova string com base no tamanho atual da mensagem e do tamanho da resposta
+        char *temp = kmalloc(message_size + actual_size + 1, GFP_KERNEL);
+        // if (!temp) {
+        //     printk(KERN_ERR "SmartLamp: Erro ao alocar memória para a nova mensagem.\n");
+        //     return NULL;
+        // }
+
+        memcpy(temp, message, message_size);
+        // Copia os caracteres recebidos da USB para a nova string
+        memcpy(temp + message_size, usb_in_buffer, actual_size);
+        // Atualiza o tamanho da mensagem
+        message_size += actual_size;
+
+        // Adiciona o caractere nulo ao final da nova string
+        temp[message_size] = '\0';
+
+        // Libera a memória da mensagem anterior
+        kfree(message);
+        // Atribui a nova string à mensagem
+        message = temp;
+
+        if (strchr(usb_in_buffer, '\n')) {
+            //caso tenha recebido a mensagem 'RES_LDR X' via serial acesse o buffer 'usb_in_buffer' e retorne apenas o valor da resposta X
+            //retorne o valor de X em inteiro
+
+            // Procura por 'RES_LDR ' no início da resposta
+            char *start = strstr(message, "RES GET_LDR "); // retorna a primeira ocorrência da "RES_LDR " na string usb_in_buffer
+            // usb_in_buffer[actual_size] = '\0';
+            if (!start) {
+                printk(KERN_ERR "SmartLamp: Mensagem incompleta ou inválida.\n");
+                continue;
+            }
+
+            // Extrai o valor de X após 'RES_LDR'
+            start += strlen("RES GET_LDR "); // Move o ponteiro para o início do valor de X
+            // int value = atoi(start);
+            int value;
+            sscanf(start, "%d", &value);
+            printk(KERN_ERR "COMMAND DETECTED. VALUE: %d\n", value);
+            return value;
         }
-
-        // Extrai o valor de X após 'RES_LDR'
-        start += strlen("RES_LDR "); // Move o ponteiro para o início do valor de X
-        int value = atoi(start);
-
-        return value;
     }
 
     return -1; 
