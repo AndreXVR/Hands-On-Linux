@@ -1,47 +1,65 @@
 // Defina os pinos de LED e LDR
 // Defina uma variável com valor máximo do LDR (4000)
 // Defina uma variável para guardar o valor atual do LED (10)
+
+#include "DHT.h"
+
 int ledPin = 23;
 int ledValue = 10;
-
+int DHTPin = 22;
 int ldrPin = 36;
 int ldrMax = 4000;
+
+#define DHTTYPE DHT11
+DHT dht(DHTPin, DHTTYPE);
 
 void setup() {
     Serial.begin(9600);
     
     pinMode(ledPin, OUTPUT);
     pinMode(ldrPin, INPUT);
+    pinMode(DHTPin, INPUT);
+    analogWrite(ledPin, ledValue);
+
+    dht.begin();
     
     Serial.printf("SmartLamp Initialized.\n");
 }
 
 // Função loop será executada infinitamente pelo ESP32
 void loop() {
-    //Obtenha os comandos enviados pela serial
-    String cmd = Serial.readString();
+  String cmd;
+   while (Serial.available() > 0) {
+        char serialChar = Serial.read();
+        cmd += serialChar; 
 
-    //e processe-os com a função processCommand
-    processCommand(cmd);
+        if (serialChar == '\n') {
+            processCommand(cmd);
+            cmd = "";
+        }
+    }
+   delay(100);
 }
 
 
 void processCommand(String command) {
     // compare o comando com os comandos possíveis e execute a ação correspondente      
     command.trim();
-
     if (command.startsWith("SET_LED")) {
         int pos = command.indexOf(' ');
         if (pos != -1) {
-        String intensityString = command.substring(pos + 1);
-        int intensity = intensityString.toInt();
-        ledUpdate(intensity);
-    }
-    } else if (command.equals("GET_LED")) {
-        ledGetValue();
-    }
-    else if (command.equals("GET_LDR")) {
-        ldrGetValue();
+          String intensityString = command.substring(pos + 1);
+          int intensity = intensityString.toInt();
+          ledUpdate(intensity);
+      }
+    } else if (command.startsWith("GET_LED")) {
+        Serial.printf("RES GET_LED %d\n", ledValue);
+    } else if (command.startsWith("GET_LDR")) {
+        Serial.printf("RES GET_LDR %d\n", ldrGetValue());
+    } else if (command.startsWith("GET_TEMP")) {
+        tempGetValue();
+    } else if (command.startsWith("GET_HUM")) {
+        humGetValue();
     }
 }
 
@@ -66,8 +84,10 @@ int ldrGetValue() {
     return value*255/ldrMax;
 }
 
-// Função para ler o valor do LED
-int ledGetValue() {
-    Serial.printf("RES GET_LED ");
-    Serial.println(ledValue);
+void tempGetValue() {
+  Serial.printf("RES GET_TEMP %.2f\n", dht.readTemperature());
+}
+
+void humGetValue() {
+  Serial.printf("RES GET_HUM %.2f\n", dht.readHumidity());
 }

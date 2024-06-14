@@ -24,10 +24,10 @@ Bem-vindo ao repositório da Equipe 04 do HandsON de Linux do DevTITANS! Este pr
 <img src="https://github.com/DevTITANS05/Hands-On-Linux-fork-/assets/21023906/85e61f3e-476c-47a4-82d5-4054e856c67b" width="180" >
 
 - **André da Silva Xavier:** Desenvolvedor do Firmware e Mantenedor do Projeto
-- **Laura Isabelle Neves de Queiroz:** Desenvolvedor do Firmware
+- **Laura Isabelle Neves de Queiroz:** Desenvolvedor do Firmware e Escritor da Documentação
 - **Bruno Ananias Negreiros:** Desenvolvedor do Driver Linux
 - **Crislan Rodrigues da Cruz:** Desenvolvedor do Driver Linux
-- **Nome do(a) Aluno(a) 05:** Desenvolvedor do Firmware e Escritor da Documentação
+- **Nome do(a) Aluno(a) 05:** Desenvolvedor do Firmware 
 
 ## Introdução
 
@@ -51,8 +51,10 @@ Este projeto serve como um exemplo para desenvolvedores interessados em construi
 - **Hardware:**
   - Placa de Desenvolvimento ESP32
   - Máquina Linux
-  - Protoboard e Cabos Jumper
+  - Protoboard, Cabos Jumper e resistores
   - Sensor LDR
+  - LED
+  - DHT
   
 - **Software:**
   - Arduino IDE
@@ -94,7 +96,7 @@ Este projeto serve como um exemplo para desenvolvedores interessados em construi
 
 1. **Clone o Repositório:**
     ```sh
-    git clone https://github.com/seuusuario/Hands-On-Linux.git
+    git clone https://github.com/AndreXVR/Hands-On-Linux.git
     cd Hands-On-Linux
     ```
 
@@ -140,4 +142,4 @@ Depois que o driver e o firmware estiverem configurados, você poderá interagir
     
 ## Contato
 
-Para perguntas, sugestões ou feedback, entre em contato com o mantenedor do projeto em [maintainer@example.com](mailto:maintainer@example.com).
+Para perguntas, sugestões ou feedback, entre em contato com o mantenedor do projeto em [email adress](mailto:xavier.andre256@gmail.com).

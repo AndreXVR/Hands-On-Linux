@@ -1,0 +1,5 @@
+O arquivo 'esp32_diagram.jpg' possui o diagrama das pinagens utilizadas, o arquivo 'prototipo.jpg' a foto do protótipo físico montado.
+A listagem a seguir descreve a pinagem:
+- LED (Output): 23
+- LDR (Input): 36
+- DHT (Input): 22
