@@ -22,7 +22,8 @@ static const struct usb_device_id id_table[] = { { USB_DEVICE(VENDOR_ID, PRODUCT
 
 static int  usb_probe(struct usb_interface *ifce, const struct usb_device_id *id); // Executado quando o dispositivo é conectado na USB
 static void usb_disconnect(struct usb_interface *ifce);                           // Executado quando o dispositivo USB é desconectado da USB
-static int  usb_read_serial(void);   
+static int  usb_read_serial(void);
+static int  usb_write_serial(char *cmd, int param);
 
 // Executado quando o arquivo /sys/kernel/smartlamp/{led, ldr} é lido (e.g., cat /sys/kernel/smartlamp/led)
 static ssize_t attr_show(struct kobject *sys_obj, struct kobj_attribute *attr, char *buff);
@@ -100,8 +101,9 @@ static int usb_send_cmd(char *cmd, int param) {
     // preencha o buffer                     // Caso contrário, é só o comando mesmo
 
     // Envia o comando (usb_out_buffer) para a USB
+    sprintf(usb_out_buffer, "%s %d\n", cmd, param);
     // Procure a documentação da função usb_bulk_msg para entender os parâmetros
-    ret = usb_bulk_msg(smartlamp_device, usb_sndbulkpipe(smartlamp_device, usb_out), BUFFER, ?, &actual_size, 1000);
+    ret = usb_bulk_msg(smartlamp_device, usb_sndbulkpipe(smartlamp_device, usb_out), usb_out_buffer, strlen(usb_out_buffer), &actual_size, 1000);
     if (ret) {
         printk(KERN_ERR "SmartLamp: Erro de codigo %d ao enviar comando!\n", ret);
         return -1;
@@ -119,6 +121,7 @@ static int usb_send_cmd(char *cmd, int param) {
         }
 
         // adicione a sua implementação do médodo usb_read_serial
+        return param;
     }
     return -1; // Não recebi a resposta esperada do dispositivo
 }
