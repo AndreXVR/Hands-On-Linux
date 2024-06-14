@@ -4,7 +4,6 @@
 #include <linux/string.h>
 // #include <linux/stdio.h>
 // #include <linux/stdlib.h>
-#include <linux/slab.h> // Para kmalloc e kfree
 
 
 MODULE_AUTHOR("DevTITANS <devtitans@icomp.ufam.edu.br>");
@@ -129,7 +128,7 @@ static int usb_read_serial() {
 
             // Extrai o valor de X após 'RES_LDR'
             start += strlen("RES GET_LDR "); // Move o ponteiro para o início do valor de X
-            // int value = atoi(start);
+            // // int value = atoi(start);
             int value;
             sscanf(start, "%d", &value);
             printk(KERN_ERR "COMMAND DETECTED. VALUE: %d\n", value);
